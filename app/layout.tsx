@@ -35,6 +35,9 @@ export default function RootLayout({
                 <Link href="/events" className="hover:underline">
                   Events
                 </Link>
+                <Link href="/issues" className="hover:underline">
+                  Issues
+                </Link>
                 <ThemeToggle />
               </div>
             </header>

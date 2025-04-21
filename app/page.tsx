@@ -17,12 +17,12 @@ export default function Home() {
             <Link href="/calendar">View Calendar</Link>
           </Button>
           <Button asChild variant="outline" size="lg">
-            <Link href="/events">View All Events</Link>
+            <Link href="/issues">Report an Issue</Link>
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
         <Card>
           <CardHeader>
             <CardTitle>Event Calendar</CardTitle>
@@ -57,16 +57,16 @@ export default function Home() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Dark Mode Support</CardTitle>
-            <CardDescription>Customize your viewing experience</CardDescription>
+            <CardTitle>Maintenance Issues</CardTitle>
+            <CardDescription>Report and track maintenance issues in your unit or building</CardDescription>
           </CardHeader>
           <CardContent>
             <p>
-              Switch between light and dark mode based on your preference. The app automatically adapts to your system
-              settings or you can manually toggle.
+              Easily report maintenance issues, track their status, and communicate with property management about
+              repairs and resolutions.
             </p>
-            <Button className="mt-4" variant="outline" disabled>
-              Toggle in Header
+            <Button className="mt-4" variant="outline" asChild>
+              <Link href="/issues">Report an Issue</Link>
             </Button>
           </CardContent>
         </Card>
