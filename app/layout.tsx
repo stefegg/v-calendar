@@ -1,12 +1,16 @@
 import type React from "react"
 import "@/app/globals.css"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Lato } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 
-const inter = Inter({ subsets: ["latin"] })
+const lato = Lato({
+  weight: ["400", "700", "900"],
+  subsets: ["latin"],
+  display: "swap",
+})
 
 export const metadata: Metadata = {
   title: "Property Management App",
@@ -21,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={lato.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <div className="min-h-screen flex flex-col">
             <header className="sticky top-0 z-40 w-full border-b backdrop-blur-lg transition-all bg-primary/75 dark:bg-background/75 text-white dark:text-foreground">
@@ -30,6 +34,12 @@ export default function RootLayout({
                   Property Manager
                 </Link>
                 <div className="flex items-center gap-4">
+                  <Link
+                    href="/dashboard"
+                    className="text-white hover:text-white/90 dark:text-foreground dark:hover:text-foreground/90"
+                  >
+                    Dashboard
+                  </Link>
                   <Link
                     href="/calendar"
                     className="text-white hover:text-white/90 dark:text-foreground dark:hover:text-foreground/90"

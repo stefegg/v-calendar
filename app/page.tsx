@@ -26,10 +26,20 @@ export default function Home() {
           </p>
 
           <div className="flex gap-4 pb-8">
-            <Button asChild variant="outline" size="lg" className="border-white text-black dark:text-white dark:hover:bg-white/20 hover:bg-black/20 hover:text-white shadow-md">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-white text-black dark:text-white dark:hover:bg-white/20 hover:bg-black/20 hover:text-white shadow-md"
+            >
               <Link href="/calendar">View Calendar</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-white text-black dark:text-white dark:hover:bg-white/20 hover:bg-black/20 hover:text-white shadow-md">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-white text-black dark:text-white dark:hover:bg-white/20 hover:bg-black/20 hover:text-white shadow-md"
+            >
               <Link href="/issues">Report an Issue</Link>
             </Button>
           </div>
@@ -51,16 +61,16 @@ export default function Home() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Event Comments</CardTitle>
-                <CardDescription>Communicate about events with property managers and other residents</CardDescription>
+                <CardTitle>Dashboard</CardTitle>
+                <CardDescription>Access your personalized property management dashboard</CardDescription>
               </CardHeader>
               <CardContent>
                 <p>
-                  Leave comments on building-wide events or events specific to your unit. Ask questions, provide
-                  feedback, and stay informed about important updates.
+                  View your upcoming events, track maintenance issues, and get a quick overview of your property status
+                  all in one convenient dashboard.
                 </p>
                 <Button className="mt-4" variant="outline" asChild>
-                  <Link href="/events">View Events</Link>
+                  <Link href="/dashboard">Open Dashboard</Link>
                 </Button>
               </CardContent>
             </Card>
