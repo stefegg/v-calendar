@@ -10,13 +10,86 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import type { Event } from "@/types/event"
+import dayjs from "dayjs"
+import weekday from "dayjs/plugin/weekday"
+import weekOfYear from "dayjs/plugin/weekOfYear"
 
-// Simple function to format date as YYYY-MM-DD
-function formatDateToYYYYMMDD(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, "0")
-  const day = String(date.getDate()).padStart(2, "0")
-  return `${year}-${month}-${day}`
+// Initialize dayjs plugins
+dayjs.extend(weekday)
+dayjs.extend(weekOfYear)
+
+// Define DateAttr interface for calendar days
+interface DateAttr {
+  dateString: string
+  dayNumber: number
+  isCurrentMonth: boolean
+}
+
+// Helper functions for calendar generation
+const getMonthDayCount = (year: number, month: number): number => {
+  return dayjs(`${year}-${month}-01`).daysInMonth()
+}
+
+// Find what day of the week a date is on (0 is Sunday)
+const getDayIndex = (dateString: string | number | dayjs.Dayjs | Date | null | undefined): number => {
+  return dayjs(dateString).weekday()
+}
+
+const currentMonthDisplay = (year: number, month: number): DateAttr[] => {
+  // Format month as MM
+  const formattedMonth = String(month).padStart(2, "0")
+
+  // Build current month array
+  return [...Array(getMonthDayCount(year, month))].map((_, idx) => {
+    return {
+      dateString: dayjs(`${year}-${formattedMonth}-${idx + 1}`).format("YYYY-MM-DD"),
+      dayNumber: idx + 1,
+      isCurrentMonth: true,
+    }
+  })
+}
+
+const prevMonthDisplay = (year: number, month: number, currentMonthDays: DateAttr[]): DateAttr[] => {
+  // Format month as MM
+  const formattedMonth = String(month).padStart(2, "0")
+
+  // Get index that represents the day of the week for first day of current month
+  const visibleNumberOfDays = getDayIndex(currentMonthDays[0].dateString)
+  const previousMonth = dayjs(`${year}-${formattedMonth}-01`).subtract(1, "month")
+
+  // First displayed day of previous month, will always start on Sunday if any are visible
+  const lastSundayDayOfMonth = dayjs(currentMonthDays[0].dateString).subtract(visibleNumberOfDays, "day").date()
+
+  // Build prevMonth array
+  return [...Array(visibleNumberOfDays)].map((_, idx) => {
+    return {
+      dateString: dayjs(`${previousMonth.year()}-${previousMonth.month() + 1}-${lastSundayDayOfMonth + idx}`).format(
+        "YYYY-MM-DD",
+      ),
+      dayNumber: lastSundayDayOfMonth + idx,
+      isCurrentMonth: false,
+    }
+  })
+}
+
+const nextMonthDisplay = (year: number, month: number, currentMonthDays: DateAttr[]): DateAttr[] => {
+  // Format month as MM
+  const formattedMonth = String(month).padStart(2, "0")
+
+  const lastDayOfTheMonthWeekday = getDayIndex(`${year}-${formattedMonth}-${currentMonthDays.length}`)
+  const nextMonth = dayjs(`${year}-${formattedMonth}-01`).add(1, "month")
+
+  // Subtract last day of the month from 6 to determine visible number of days for next month
+  const visibleNumberOfDays = 6 - lastDayOfTheMonthWeekday
+
+  // Build nextMonth array
+  return [...Array(visibleNumberOfDays)].map((_, idx) => {
+    return {
+      dateString: dayjs(`${nextMonth.year()}-${nextMonth.month() + 1}-${idx + 1}`).format("YYYY-MM-DD"),
+      dayNumber: idx + 1,
+      isCurrentMonth: false,
+    }
+  })
 }
 
 // Format time from 24-hour format to 12-hour format
@@ -36,6 +109,25 @@ export default function CalendarView() {
   const [events, setEvents] = useState<Event[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+  const [calendarDays, setCalendarDays] = useState<DateAttr[]>([])
+
+  // Generate calendar days when date changes
+  useEffect(() => {
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1 // JavaScript months are 0-indexed, dayjs expects 1-indexed
+
+    // Generate current month days
+    const currentDays = currentMonthDisplay(year, month)
+
+    // Generate previous month days
+    const prevDays = prevMonthDisplay(year, month, currentDays)
+
+    // Generate next month days
+    const nextDays = nextMonthDisplay(year, month, currentDays)
+
+    // Combine all days
+    setCalendarDays([...prevDays, ...currentDays, ...nextDays])
+  }, [date])
 
   // Fetch events from the API when the date changes
   useEffect(() => {
@@ -44,12 +136,8 @@ export default function CalendarView() {
       setError(null)
 
       try {
-        // Get the year and month for the API request
+        // Get the year for the API request
         const year = date.getFullYear()
-        const month = date.getMonth() + 1
-
-        // Format month as MM
-        const formattedMonth = String(month).padStart(2, "0")
 
         // Build the API URL with query parameters
         const url = `/api/events?year=${year}`
@@ -87,14 +175,8 @@ export default function CalendarView() {
     setDate(newDate)
   }
 
-  // Get events for a specific day using simple string comparison
-  const getEventsForDay = (day: Date) => {
-    if (!day || !(day instanceof Date) || isNaN(day.getTime())) {
-      return []
-    }
-
-    const dateString = formatDateToYYYYMMDD(day)
-
+  // Get events for a specific day
+  const getEventsForDay = (dateString: string) => {
     return events
       .filter((event) => {
         // Simple string comparison of dates (YYYY-MM-DD)
@@ -105,16 +187,26 @@ export default function CalendarView() {
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full bg-primary/15 dark:bg-card">
       <CardHeader className="flex flex-col items-center justify-center pb-2">
         <div className="flex items-center justify-center w-full max-w-md space-x-4">
-          <Button variant="outline" size="icon" onClick={handlePreviousMonth}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handlePreviousMonth}
+            className="border-primary-foreground/70 dark:border-input"
+          >
             <ChevronLeft className="h-5 w-5" />
           </Button>
           <div className="font-medium text-2xl px-8 text-center min-w-[200px]">
             {date.toLocaleDateString("en-US", { year: "numeric", month: "long" })}
           </div>
-          <Button variant="outline" size="icon" onClick={handleNextMonth}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleNextMonth}
+            className="border-primary-foreground/70 dark:border-input"
+          >
             <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
@@ -127,7 +219,7 @@ export default function CalendarView() {
           </Alert>
         )}
 
-        {/* Custom calendar implementation for better control over sizing and events */}
+        {/* Custom calendar implementation */}
         <div className="grid grid-cols-7 gap-1 text-center font-medium mb-2">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
             <div key={day} className="p-2">
@@ -136,23 +228,22 @@ export default function CalendarView() {
           ))}
         </div>
         <div className="grid grid-cols-7 gap-1">
-          {generateCalendarDays(date).map((day, index) => {
-            const isCurrentMonth = day.getMonth() === date.getMonth()
-            const dayEvents = isCurrentMonth ? getEventsForDay(day) : []
+          {calendarDays.map((day, index) => {
+            const dayEvents = getEventsForDay(day.dateString)
 
             return (
               <div
                 key={index}
                 className={cn(
                   "min-h-[120px] border rounded-md p-2",
-                  isCurrentMonth ? "bg-card" : "bg-muted/30 text-muted-foreground",
+                  day.isCurrentMonth ? "bg-white dark:bg-card" : "bg-muted/30 text-muted-foreground",
                   isLoading && "opacity-70",
                 )}
               >
-                <div className="font-medium text-right mb-1">{day.getDate()}</div>
+                <div className="font-medium text-right mb-1">{day.dayNumber}</div>
                 <div className="space-y-1">
                   {!isLoading && dayEvents.map((event) => <EventStripe key={event.id} event={event} />)}
-                  {isLoading && isCurrentMonth && <div className="h-6 bg-muted rounded animate-pulse"></div>}
+                  {isLoading && day.isCurrentMonth && <div className="h-6 bg-muted rounded animate-pulse"></div>}
                 </div>
               </div>
             )
@@ -170,55 +261,12 @@ export default function CalendarView() {
             <span className="text-sm">Building Events</span>
           </div>
         </div>
-        <Button variant="outline" size="sm" asChild>
+        <Button variant="outline" size="sm" asChild className="border-primary-foreground/70 dark:border-input">
           <Link href="/events">View All Events</Link>
         </Button>
       </CardFooter>
     </Card>
   )
-}
-
-// Helper function to generate all days for the current month view
-function generateCalendarDays(date: Date): Date[] {
-  const year = date.getFullYear()
-  const month = date.getMonth()
-
-  // First day of the month
-  const firstDay = new Date(year, month, 1)
-  // Last day of the month
-  const lastDay = new Date(year, month + 1, 0)
-
-  // Get the day of the week for the first day (0 = Sunday, 6 = Saturday)
-  const firstDayOfWeek = firstDay.getDay()
-
-  // Calculate days from previous month to show
-  const daysFromPrevMonth = firstDayOfWeek
-
-  // Calculate total days needed (previous month days + current month days + next month days to fill grid)
-  const totalDays = 42 // 6 rows of 7 days
-
-  const days: Date[] = []
-
-  // Add days from previous month
-  for (let i = daysFromPrevMonth - 1; i >= 0; i--) {
-    const day = new Date(year, month, -i)
-    days.push(day)
-  }
-
-  // Add days from current month
-  for (let i = 1; i <= lastDay.getDate(); i++) {
-    const day = new Date(year, month, i)
-    days.push(day)
-  }
-
-  // Add days from next month to fill the grid
-  const remainingDays = totalDays - days.length
-  for (let i = 1; i <= remainingDays; i++) {
-    const day = new Date(year, month + 1, i)
-    days.push(day)
-  }
-
-  return days
 }
 
 // Component for individual event stripes

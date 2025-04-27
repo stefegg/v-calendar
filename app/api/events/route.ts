@@ -22,14 +22,16 @@ async function fetchEventsFromDatabase(
     { id: 3, name: "Property Manager", email: "manager@example.com" },
   ]
 
-  // Mock data for demonstration - using provided year or current year
-  return [
-    // April Events
-    {
-      id: 10,
-      title: "April Rent Due",
-      description: "Monthly rent payment for Unit 101",
-      date: `${currentYear}-04-01`,
+  // Generate rent due events for every month
+  const rentDueEvents: Event[] = Array.from({ length: 12 }, (_, monthIndex) => {
+    const month = monthIndex + 1 // JavaScript months are 0-indexed
+    const formattedMonth = month.toString().padStart(2, "0")
+
+    return {
+      id: 1000 + month, // Unique ID for each rent event
+      title: `${getMonthName(month)} Rent Due`,
+      description: `Monthly rent payment for Unit 101`,
+      date: `${currentYear}-${formattedMonth}-01`,
       isAllDay: true,
       category: "unit",
       type: "rent_due",
@@ -40,13 +42,18 @@ async function fetchEventsFromDatabase(
       contractors: [],
       comments: [
         {
-          id: 10,
-          text: "Rent has been paid",
-          createdAt: `${currentYear}-04-01T10:15:00Z`,
+          id: 1000 + month,
+          text: month <= 5 ? "Rent has been paid" : "Reminder: Rent is due today",
+          createdAt: `${currentYear}-${formattedMonth}-01T10:15:00Z`,
           user: users[0],
         },
       ],
-    },
+    }
+  })
+
+  // Additional events throughout the year
+  const additionalEvents: Event[] = [
+    // April Events
     {
       id: 11,
       title: "Window Cleaning",
@@ -80,28 +87,6 @@ async function fetchEventsFromDatabase(
       comments: [],
     },
     // May Events
-    {
-      id: 1,
-      title: "Rent Due",
-      description: "Monthly rent payment for Unit 101",
-      date: `${currentYear}-05-01`,
-      isAllDay: true,
-      category: "unit",
-      type: "rent_due",
-      color: "#FF6B6B",
-      creator: { id: 3, name: "Property Manager" },
-      unit: { id: 1, number: "101" },
-      building: { id: 1, name: "Sunset Towers" },
-      contractors: [],
-      comments: [
-        {
-          id: 1,
-          text: "I'll pay this by the end of the day",
-          createdAt: `${currentYear}-05-01T09:30:00Z`,
-          user: users[0],
-        },
-      ],
-    },
     {
       id: 2,
       title: "Boiler Maintenance",
@@ -199,6 +184,212 @@ async function fetchEventsFromDatabase(
       contractors: ["Pest Away Inc."],
       comments: [],
     },
+    // June Events
+    {
+      id: 20,
+      title: "Pool Opening",
+      description: "Seasonal opening of the community pool",
+      date: `${currentYear}-06-15`,
+      isAllDay: true,
+      category: "building",
+      type: "other",
+      color: "#4ECDC4",
+      creator: { id: 3, name: "Property Manager" },
+      building: { id: 1, name: "Sunset Towers" },
+      contractors: ["Blue Water Pool Services"],
+      comments: [],
+    },
+    // July Events
+    {
+      id: 21,
+      title: "Independence Day BBQ",
+      description: "Community BBQ in the courtyard",
+      date: `${currentYear}-07-04`,
+      startTime: "12:00",
+      endTime: "16:00",
+      isAllDay: false,
+      category: "building",
+      type: "other",
+      color: "#9D8DF1",
+      creator: { id: 3, name: "Property Manager" },
+      building: { id: 1, name: "Sunset Towers" },
+      contractors: [],
+      comments: [],
+    },
+    {
+      id: 22,
+      title: "HVAC Maintenance",
+      description: "Annual air conditioning system check",
+      date: `${currentYear}-07-15`,
+      startTime: "09:00",
+      endTime: "17:00",
+      isAllDay: false,
+      category: "building",
+      type: "maintenance",
+      color: "#4ECDC4",
+      creator: { id: 3, name: "Property Manager" },
+      building: { id: 1, name: "Sunset Towers" },
+      contractors: ["Cool Air Services"],
+      comments: [],
+    },
+    // August Events
+    {
+      id: 23,
+      title: "HOA Meeting",
+      description: "Quarterly homeowners association meeting",
+      date: `${currentYear}-08-20`,
+      startTime: "19:00",
+      endTime: "21:00",
+      isAllDay: false,
+      category: "building",
+      type: "meeting",
+      color: "#9D8DF1",
+      creator: { id: 3, name: "Property Manager" },
+      building: { id: 1, name: "Sunset Towers" },
+      contractors: [],
+      comments: [],
+    },
+    // September Events
+    {
+      id: 24,
+      title: "Roof Inspection",
+      description: "Annual roof inspection and maintenance",
+      date: `${currentYear}-09-10`,
+      isAllDay: true,
+      category: "building",
+      type: "inspection",
+      color: "#6A8EAE",
+      creator: { id: 3, name: "Property Manager" },
+      building: { id: 1, name: "Sunset Towers" },
+      contractors: ["Top Notch Roofing"],
+      comments: [],
+    },
+    // October Events
+    {
+      id: 25,
+      title: "Halloween Party",
+      description: "Community Halloween celebration in the common room",
+      date: `${currentYear}-10-31`,
+      startTime: "18:00",
+      endTime: "21:00",
+      isAllDay: false,
+      category: "building",
+      type: "other",
+      color: "#9D8DF1",
+      creator: { id: 3, name: "Property Manager" },
+      building: { id: 1, name: "Sunset Towers" },
+      contractors: [],
+      comments: [],
+    },
+    // November Events
+    {
+      id: 26,
+      title: "HOA Meeting",
+      description: "Quarterly homeowners association meeting",
+      date: `${currentYear}-11-20`,
+      startTime: "19:00",
+      endTime: "21:00",
+      isAllDay: false,
+      category: "building",
+      type: "meeting",
+      color: "#9D8DF1",
+      creator: { id: 3, name: "Property Manager" },
+      building: { id: 1, name: "Sunset Towers" },
+      contractors: [],
+      comments: [],
+    },
+    {
+      id: 27,
+      title: "Heating System Check",
+      description: "Winter preparation - heating system inspection",
+      date: `${currentYear}-11-15`,
+      isAllDay: true,
+      category: "building",
+      type: "maintenance",
+      color: "#4ECDC4",
+      creator: { id: 3, name: "Property Manager" },
+      building: { id: 1, name: "Sunset Towers" },
+      contractors: ["Warm & Cozy Heating"],
+      comments: [],
+    },
+    // December Events
+    {
+      id: 28,
+      title: "Holiday Party",
+      description: "Annual community holiday celebration",
+      date: `${currentYear}-12-15`,
+      startTime: "18:00",
+      endTime: "22:00",
+      isAllDay: false,
+      category: "building",
+      type: "other",
+      color: "#9D8DF1",
+      creator: { id: 3, name: "Property Manager" },
+      building: { id: 1, name: "Sunset Towers" },
+      contractors: [],
+      comments: [],
+    },
+    {
+      id: 29,
+      title: "Snow Removal Service Begins",
+      description: "Winter snow removal service contract starts",
+      date: `${currentYear}-12-01`,
+      isAllDay: true,
+      category: "building",
+      type: "maintenance",
+      color: "#4ECDC4",
+      creator: { id: 3, name: "Property Manager" },
+      building: { id: 1, name: "Sunset Towers" },
+      contractors: ["Snow Be Gone"],
+      comments: [],
+    },
+    // January Events
+    {
+      id: 30,
+      title: "New Year's Maintenance",
+      description: "General building maintenance check",
+      date: `${currentYear}-01-15`,
+      isAllDay: true,
+      category: "building",
+      type: "maintenance",
+      color: "#4ECDC4",
+      creator: { id: 3, name: "Property Manager" },
+      building: { id: 1, name: "Sunset Towers" },
+      contractors: ["ABC Maintenance Co."],
+      comments: [],
+    },
+    // February Events
+    {
+      id: 31,
+      title: "HOA Meeting",
+      description: "First quarterly homeowners association meeting",
+      date: `${currentYear}-02-20`,
+      startTime: "19:00",
+      endTime: "21:00",
+      isAllDay: false,
+      category: "building",
+      type: "meeting",
+      color: "#9D8DF1",
+      creator: { id: 3, name: "Property Manager" },
+      building: { id: 1, name: "Sunset Towers" },
+      contractors: [],
+      comments: [],
+    },
+    // March Events
+    {
+      id: 32,
+      title: "Spring Cleaning",
+      description: "Common areas deep cleaning",
+      date: `${currentYear}-03-15`,
+      isAllDay: true,
+      category: "building",
+      type: "maintenance",
+      color: "#4ECDC4",
+      creator: { id: 3, name: "Property Manager" },
+      building: { id: 1, name: "Sunset Towers" },
+      contractors: ["Spotless Cleaning Services"],
+      comments: [],
+    },
     // Add some events for previous year to demonstrate year filtering
     {
       id: 7,
@@ -232,6 +423,28 @@ async function fetchEventsFromDatabase(
       comments: [],
     },
   ]
+
+  // Combine all events
+  return [...rentDueEvents, ...additionalEvents]
+}
+
+// Helper function to get month name
+function getMonthName(month: number): string {
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ]
+  return monthNames[month - 1]
 }
 
 export async function GET(request: NextRequest) {

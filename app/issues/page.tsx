@@ -77,7 +77,7 @@ export default function IssuesPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold">Maintenance Issues</h1>
 
-        <Button asChild>
+        <Button asChild className="border-primary-foreground/70 dark:border-input">
           <Link href="/issues/new">
             <Plus className="mr-2 h-4 w-4" /> Report New Issue
           </Link>

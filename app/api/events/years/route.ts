@@ -6,8 +6,12 @@ async function fetchEventYears(): Promise<number[]> {
   const currentDate = new Date()
   const currentYear = currentDate.getFullYear()
 
-  // Return current year and previous year for demonstration
-  return [currentYear - 1, currentYear]
+  // Return current year, previous year, and 2025 for demonstration
+  // Use a Set to ensure unique values
+  const uniqueYears = new Set([currentYear - 1, currentYear, 2025])
+
+  // Convert Set back to array
+  return Array.from(uniqueYears)
 }
 
 export async function GET() {

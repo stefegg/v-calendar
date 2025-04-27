@@ -24,25 +24,36 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <div className="min-h-screen flex flex-col">
-            <header className="border-b px-4 py-3 flex items-center justify-between">
-              <Link href="/" className="font-bold text-xl">
-                Property Manager
-              </Link>
-              <div className="flex items-center gap-4">
-                <Link href="/calendar" className="hover:underline">
-                  Calendar
+            <header className="sticky top-0 z-40 w-full border-b backdrop-blur-lg transition-all bg-primary/75 dark:bg-background/75 text-white dark:text-foreground">
+              <div className="container mx-auto flex h-14 items-center justify-between px-4">
+                <Link href="/" className="font-bold text-xl text-white dark:text-foreground">
+                  Property Manager
                 </Link>
-                <Link href="/events" className="hover:underline">
-                  Events
-                </Link>
-                <Link href="/issues" className="hover:underline">
-                  Issues
-                </Link>
-                <ThemeToggle />
+                <div className="flex items-center gap-4">
+                  <Link
+                    href="/calendar"
+                    className="text-white hover:text-white/90 dark:text-foreground dark:hover:text-foreground/90"
+                  >
+                    Calendar
+                  </Link>
+                  <Link
+                    href="/events"
+                    className="text-white hover:text-white/90 dark:text-foreground dark:hover:text-foreground/90"
+                  >
+                    Events
+                  </Link>
+                  <Link
+                    href="/issues"
+                    className="text-white hover:text-white/90 dark:text-foreground dark:hover:text-foreground/90"
+                  >
+                    Issues
+                  </Link>
+                  <ThemeToggle />
+                </div>
               </div>
             </header>
-            <main className="flex-1 p-4">{children}</main>
-            <footer className="border-t px-4 py-3 text-center text-sm text-muted-foreground">
+            <main className="flex-1">{children}</main>
+            <footer className="border-t px-4 py-3 text-center text-sm text-muted-foreground bg-primary/20 dark:bg-transparent border-primary/20 dark:border-border">
               © {new Date().getFullYear()} Property Management App
             </footer>
           </div>

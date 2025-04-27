@@ -125,7 +125,7 @@ export default function EventsPage() {
   })
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto py-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold">Events</h1>
 
@@ -176,7 +176,7 @@ export default function EventsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-8 mb-8">
           {monthNames.map((month) => (
             <Card key={month}>
               <CardHeader>
@@ -223,7 +223,12 @@ export default function EventsPage() {
                       </div>
 
                       <div className="mt-2 md:mt-0 md:ml-4 flex items-start">
-                        <Button size="sm" variant="outline" asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          asChild
+                          className="border-primary-foreground/70 dark:border-input"
+                        >
                           <Link href={`/events/${event.id}`}>View Details</Link>
                         </Button>
                       </div>
