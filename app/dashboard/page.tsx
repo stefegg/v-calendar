@@ -1,3 +1,4 @@
+import type React from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CalendarDays, Home, AlertCircle, BarChart3, Settings } from "lucide-react"
@@ -207,40 +208,106 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="h-[220px] flex items-end justify-between gap-2">
-                  {/* Mock bar chart for payment history */}
-                  <div className="relative flex flex-col items-center">
+                  {/* Mock bar chart for payment history - chronological order from left (oldest) to right (newest) */}
+                  <div className="relative flex flex-col items-center group">
                     <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
-                      <div className="bg-green-500 w-full absolute bottom-0 h-[95%]"></div>
+                      <div
+                        className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
+                        style={
+                          {
+                            animationDelay: "100ms",
+                            "--bar-height": "95%",
+                          } as React.CSSProperties
+                        }
+                      ></div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                        Paid on Dec 1, 2024
+                      </div>
                     </div>
                     <span className="text-xs mt-1">Dec</span>
                   </div>
-                  <div className="relative flex flex-col items-center">
+                  <div className="relative flex flex-col items-center group">
                     <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
-                      <div className="bg-green-500 w-full absolute bottom-0 h-[100%]"></div>
+                      <div
+                        className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
+                        style={
+                          {
+                            animationDelay: "300ms",
+                            "--bar-height": "100%",
+                          } as React.CSSProperties
+                        }
+                      ></div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                        Paid on Jan 2, 2025
+                      </div>
                     </div>
                     <span className="text-xs mt-1">Jan</span>
                   </div>
-                  <div className="relative flex flex-col items-center">
+                  <div className="relative flex flex-col items-center group">
                     <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
-                      <div className="bg-green-500 w-full absolute bottom-0 h-[100%]"></div>
+                      <div
+                        className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
+                        style={
+                          {
+                            animationDelay: "500ms",
+                            "--bar-height": "100%",
+                          } as React.CSSProperties
+                        }
+                      ></div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                        Paid on Feb 1, 2025
+                      </div>
                     </div>
                     <span className="text-xs mt-1">Feb</span>
                   </div>
-                  <div className="relative flex flex-col items-center">
+                  <div className="relative flex flex-col items-center group">
                     <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
-                      <div className="bg-green-500 w-full absolute bottom-0 h-[100%]"></div>
+                      <div
+                        className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
+                        style={
+                          {
+                            animationDelay: "700ms",
+                            "--bar-height": "100%",
+                          } as React.CSSProperties
+                        }
+                      ></div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                        Paid on Mar 1, 2025
+                      </div>
                     </div>
                     <span className="text-xs mt-1">Mar</span>
                   </div>
-                  <div className="relative flex flex-col items-center">
+                  <div className="relative flex flex-col items-center group">
                     <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
-                      <div className="bg-green-500 w-full absolute bottom-0 h-[100%]"></div>
+                      <div
+                        className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
+                        style={
+                          {
+                            animationDelay: "900ms",
+                            "--bar-height": "100%",
+                          } as React.CSSProperties
+                        }
+                      ></div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                        Paid on Apr 1, 2025
+                      </div>
                     </div>
                     <span className="text-xs mt-1">Apr</span>
                   </div>
-                  <div className="relative flex flex-col items-center">
+                  <div className="relative flex flex-col items-center group">
                     <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
-                      <div className="bg-green-500 w-full absolute bottom-0 h-[90%]"></div>
+                      <div
+                        className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
+                        style={
+                          {
+                            animationDelay: "1100ms",
+                            "--bar-height": "90%",
+                          } as React.CSSProperties
+                        }
+                      ></div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                        Paid on May 1, 2025
+                      </div>
                     </div>
                     <span className="text-xs mt-1">May</span>
                   </div>

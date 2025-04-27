@@ -21,7 +21,7 @@ export function ThemeToggle() {
         variant="outline"
         size="icon"
         aria-label="Toggle theme"
-        className="border-primary-foreground/70 bg-white/10 hover:bg-white/20 dark:border-input dark:bg-transparent dark:hover:bg-accent"
+        className="border-primary-foreground/70 bg-white/10 hover:bg-white/20 dark:border-white dark:bg-transparent dark:hover:bg-accent"
       >
         <Sun className="h-[1.2rem] w-[1.2rem] text-black dark:text-white" />
         <span className="sr-only">Toggle theme</span>
@@ -36,7 +36,7 @@ export function ThemeToggle() {
           variant="outline"
           size="icon"
           aria-label="Toggle theme"
-          className="border-primary-foreground/70 bg-white/10 hover:bg-white/20 dark:border-input dark:bg-transparent dark:hover:bg-accent"
+          className="border-primary-foreground/70 bg-white/10 hover:bg-white/20 dark:border-white dark:bg-transparent dark:hover:bg-accent"
         >
           <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-black dark:text-white" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-black dark:text-white" />

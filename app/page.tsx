@@ -44,7 +44,7 @@ export default function Home() {
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
+            <Card className="dark:border-white">
               <CardHeader>
                 <CardTitle>Event Calendar</CardTitle>
                 <CardDescription>Track all building and unit events in one place</CardDescription>
@@ -54,12 +54,12 @@ export default function Home() {
                   View and manage events for your units and buildings. See maintenance schedules, rent due dates, and
                   community meetings all in one calendar view.
                 </p>
-                <Button className="mt-4" variant="outline" asChild>
+                <Button className="mt-4 dark:border-white" variant="outline" asChild>
                   <Link href="/calendar">Open Calendar</Link>
                 </Button>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="dark:border-white">
               <CardHeader>
                 <CardTitle>Dashboard</CardTitle>
                 <CardDescription>Access your personalized property management dashboard</CardDescription>
@@ -69,12 +69,12 @@ export default function Home() {
                   View your upcoming events, track maintenance issues, and get a quick overview of your property status
                   all in one convenient dashboard.
                 </p>
-                <Button className="mt-4" variant="outline" asChild>
+                <Button className="mt-4 dark:border-white" variant="outline" asChild>
                   <Link href="/dashboard">Open Dashboard</Link>
                 </Button>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="dark:border-white">
               <CardHeader>
                 <CardTitle>Maintenance Issues</CardTitle>
                 <CardDescription>Report and track maintenance issues in your unit or building</CardDescription>
@@ -84,7 +84,7 @@ export default function Home() {
                   Easily report maintenance issues, track their status, and communicate with property management about
                   repairs and resolutions.
                 </p>
-                <Button className="mt-4" variant="outline" asChild>
+                <Button className="mt-4 dark:border-white" variant="outline" asChild>
                   <Link href="/issues">Report an Issue</Link>
                 </Button>
               </CardContent>
