@@ -9,14 +9,8 @@ import { ChevronLeft, ChevronRight, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import type { Event } from "@/types/event"
-import dayjs from "dayjs"
-import weekday from "dayjs/plugin/weekday"
-import weekOfYear from "dayjs/plugin/weekOfYear"
-
-// Initialize dayjs plugins
-dayjs.extend(weekday)
-dayjs.extend(weekOfYear)
+import type { Event } from "@/types/app-types"
+import dayjs from "@/lib/dayjs"
 
 // Define DateAttr interface for calendar days
 interface DateAttr {

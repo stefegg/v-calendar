@@ -58,6 +58,12 @@ export default function RootLayout({
                   >
                     Issues
                   </Link>
+                  <Link
+                    href="/buildings"
+                    className="text-white hover:text-white/90 dark:text-foreground dark:hover:text-foreground/90"
+                  >
+                    Buildings
+                  </Link>
                   <ThemeToggle />
                 </div>
               </div>

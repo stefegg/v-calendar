@@ -1,17 +1,149 @@
+"use client"
+
 import type React from "react"
+
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CalendarDays, Home, AlertCircle, BarChart3, Settings } from "lucide-react"
-import type { Metadata } from "next"
 import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from "next/link"
 
-export const metadata: Metadata = {
-  title: "Dashboard | Property Management",
-  description: "User dashboard for property management",
+// Define types for dashboard data
+interface DashboardData {
+  upcomingEvents: number
+  events: any[]
+  openIssues: number
+  issues: any[]
+  paymentStatus: {
+    status: string
+    lastPaymentDate: string | null
+    amount: number
+  }
+  paymentHistory: {
+    month: string
+    year: number
+    total: number
+    onTime: number
+    late: number
+  }[]
 }
 
 export default function DashboardPage() {
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch("/api/dashboard")
+
+        if (!response.ok) {
+          throw new Error(`API returned status: ${response.status}`)
+        }
+
+        const data = await response.json()
+        setDashboardData(data)
+      } catch (err) {
+        console.error("Failed to fetch dashboard data:", err)
+        setError("Failed to load dashboard data. Please try again later.")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchDashboardData()
+  }, [])
+
+  // Format date for display
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "N/A"
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  }
+
+  // Get payment status text
+  const getPaymentStatusText = () => {
+    if (!dashboardData?.paymentStatus) return "Unknown"
+
+    const { status } = dashboardData.paymentStatus
+    if (status === "completed") return "Current"
+    if (status === "pending") return "Pending"
+    if (status === "failed") return "Failed"
+    return "Unknown"
+  }
+
+  // Get months in chronological order for payment history
+  const getOrderedMonths = () => {
+    if (!dashboardData?.paymentHistory) return []
+
+    // Sort months chronologically with year information
+    return [...dashboardData.paymentHistory].sort((a, b) => {
+      // Compare years first
+      const yearA = a.year || new Date().getFullYear()
+      const yearB = b.year || new Date().getFullYear()
+
+      if (yearA !== yearB) {
+        return yearA - yearB
+      }
+
+      // If years are the same, compare months
+      const monthOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+      return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month)
+    })
+  }
+
+  // Calculate payment percentage for a month (for bar height)
+  const getPaymentPercentage = (month: string) => {
+    if (!dashboardData?.paymentHistory) return 0
+
+    const monthData = dashboardData.paymentHistory.find((p) => p.month === month)
+    if (!monthData) return 0
+
+    // Calculate percentage based on the highest month total
+    const maxTotal = Math.max(...dashboardData.paymentHistory.map((p) => p.total))
+    return (monthData.total / maxTotal) * 100
+  }
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-6">
+        <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-muted rounded w-48"></div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-32 bg-muted rounded"></div>
+            ))}
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+            <div className="col-span-4 h-64 bg-muted rounded"></div>
+            <div className="col-span-3 h-64 bg-muted rounded"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto py-6">
+        <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+        <Button onClick={() => window.location.reload()}>Retry</Button>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
@@ -62,7 +194,7 @@ export default function DashboardPage() {
                   <CalendarDays className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">3</div>
+                  <div className="text-2xl font-bold">{dashboardData?.upcomingEvents || 0}</div>
                   <p className="text-xs text-muted-foreground">In the next 30 days</p>
                 </CardContent>
               </Card>
@@ -74,7 +206,7 @@ export default function DashboardPage() {
                   <AlertCircle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">2</div>
+                  <div className="text-2xl font-bold">{dashboardData?.openIssues || 0}</div>
                   <p className="text-xs text-muted-foreground">Awaiting resolution</p>
                 </CardContent>
               </Card>
@@ -85,8 +217,10 @@ export default function DashboardPage() {
                 <BarChart3 className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">Current</div>
-                <p className="text-xs text-muted-foreground">Last payment: May 1, 2025</p>
+                <div className="text-2xl font-bold">{getPaymentStatusText()}</div>
+                <p className="text-xs text-muted-foreground">
+                  Last payment: {formatDate(dashboardData?.paymentStatus?.lastPaymentDate)}
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -99,25 +233,52 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="pl-2">
                 <div className="space-y-4">
-                  {/* Placeholder for recent activity */}
-                  <div className="flex items-center gap-4 rounded-md p-2 hover:bg-accent">
-                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-                      <CalendarDays className="h-5 w-5 text-primary" />
+                  {/* Recent events */}
+                  {dashboardData?.events && dashboardData.events.length > 0 ? (
+                    dashboardData.events.map((event, index) => (
+                      <div key={event.id || index} className="flex items-center gap-4 rounded-md p-2 hover:bg-accent">
+                        <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                          <CalendarDays className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium leading-none">New event: {event.title}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Scheduled for {formatDate(event.date)}
+                            {event.start_time ? ` at ${event.start_time}` : ""}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex items-center gap-4 rounded-md p-2">
+                      <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                        <CalendarDays className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium leading-none">No recent events</p>
+                        <p className="text-sm text-muted-foreground">Check back later for updates</p>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">New event: HOA Meeting</p>
-                      <p className="text-sm text-muted-foreground">Scheduled for May 20, 2025 at 7:00 PM</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 rounded-md p-2 hover:bg-accent">
-                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-                      <AlertCircle className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">Issue status updated</p>
-                      <p className="text-sm text-muted-foreground">Leaking faucet: Status changed to "In Progress"</p>
-                    </div>
-                  </div>
+                  )}
+
+                  {/* Recent issues */}
+                  {dashboardData?.issues && dashboardData.issues.length > 0
+                    ? dashboardData.issues.map((issue, index) => (
+                        <div key={issue.id || index} className="flex items-center gap-4 rounded-md p-2 hover:bg-accent">
+                          <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                            <AlertCircle className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium leading-none">Issue status updated</p>
+                            <p className="text-sm text-muted-foreground">
+                              {issue.title}: Status changed to "{issue.status.replace("_", " ")}"
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                    : null}
+
+                  {/* Building announcement - static for now */}
                   <div className="flex items-center gap-4 rounded-md p-2 hover:bg-accent">
                     <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
                       <Home className="h-5 w-5 text-primary" />
@@ -137,20 +298,24 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between rounded-md p-2 hover:bg-accent cursor-pointer">
-                    <div className="flex items-center gap-2">
-                      <AlertCircle className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium">Report a new issue</span>
+                  <Link href="/issues/new" className="block">
+                    <div className="flex items-center justify-between rounded-md p-2 hover:bg-accent cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium">Report a new issue</span>
+                      </div>
+                      <span className="text-sm text-muted-foreground">→</span>
                     </div>
-                    <span className="text-sm text-muted-foreground">→</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-md p-2 hover:bg-accent cursor-pointer">
-                    <div className="flex items-center gap-2">
-                      <CalendarDays className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium">View calendar</span>
+                  </Link>
+                  <Link href="/calendar" className="block">
+                    <div className="flex items-center justify-between rounded-md p-2 hover:bg-accent cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <CalendarDays className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium">View calendar</span>
+                      </div>
+                      <span className="text-sm text-muted-foreground">→</span>
                     </div>
-                    <span className="text-sm text-muted-foreground">→</span>
-                  </div>
+                  </Link>
                   <div className="flex items-center justify-between rounded-md p-2 hover:bg-accent cursor-pointer">
                     <div className="flex items-center gap-2">
                       <Settings className="h-4 w-4 text-primary" />
@@ -176,7 +341,9 @@ export default function DashboardPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Rent Payments</span>
-                    <span className="font-bold text-green-600 dark:text-green-400">$1,200.00</span>
+                    <span className="font-bold text-green-600 dark:text-green-400">
+                      ${dashboardData?.paymentStatus?.amount.toFixed(2) || "0.00"}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Utilities</span>
@@ -193,7 +360,9 @@ export default function DashboardPage() {
                   <div className="pt-2 border-t">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-bold">Total Monthly</span>
-                      <span className="font-bold">$1,420.75</span>
+                      <span className="font-bold">
+                        ${((dashboardData?.paymentStatus?.amount || 0) + 145.75 + 50 + 25).toFixed(2)}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -208,109 +377,54 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="h-[220px] flex items-end justify-between gap-2">
-                  {/* Mock bar chart for payment history - chronological order from left (oldest) to right (newest) */}
-                  <div className="relative flex flex-col items-center group">
-                    <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
-                      <div
-                        className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
-                        style={
-                          {
-                            animationDelay: "100ms",
-                            "--bar-height": "95%",
-                          } as React.CSSProperties
-                        }
-                      ></div>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                        Paid on Dec 1, 2024
+                  {/* Dynamic bar chart for payment history */}
+                  {getOrderedMonths().map((monthData, index) => (
+                    <div
+                      key={`${monthData.month}-${monthData.year}`}
+                      className="relative flex flex-col items-center group"
+                    >
+                      <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
+                        <div
+                          className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
+                          style={
+                            {
+                              animationDelay: `${index * 200}ms`,
+                              "--bar-height": `${getPaymentPercentage(monthData.month)}%`,
+                            } as React.CSSProperties
+                          }
+                        ></div>
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                          Paid on {monthData.month} 1, {monthData.year}
+                        </div>
                       </div>
+                      <span className="text-xs mt-1">{monthData.month}</span>
                     </div>
-                    <span className="text-xs mt-1">Dec</span>
-                  </div>
-                  <div className="relative flex flex-col items-center group">
-                    <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
-                      <div
-                        className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
-                        style={
-                          {
-                            animationDelay: "300ms",
-                            "--bar-height": "100%",
-                          } as React.CSSProperties
-                        }
-                      ></div>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                        Paid on Jan 2, 2025
-                      </div>
-                    </div>
-                    <span className="text-xs mt-1">Jan</span>
-                  </div>
-                  <div className="relative flex flex-col items-center group">
-                    <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
-                      <div
-                        className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
-                        style={
-                          {
-                            animationDelay: "500ms",
-                            "--bar-height": "100%",
-                          } as React.CSSProperties
-                        }
-                      ></div>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                        Paid on Feb 1, 2025
-                      </div>
-                    </div>
-                    <span className="text-xs mt-1">Feb</span>
-                  </div>
-                  <div className="relative flex flex-col items-center group">
-                    <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
-                      <div
-                        className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
-                        style={
-                          {
-                            animationDelay: "700ms",
-                            "--bar-height": "100%",
-                          } as React.CSSProperties
-                        }
-                      ></div>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                        Paid on Mar 1, 2025
-                      </div>
-                    </div>
-                    <span className="text-xs mt-1">Mar</span>
-                  </div>
-                  <div className="relative flex flex-col items-center group">
-                    <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
-                      <div
-                        className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
-                        style={
-                          {
-                            animationDelay: "900ms",
-                            "--bar-height": "100%",
-                          } as React.CSSProperties
-                        }
-                      ></div>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                        Paid on Apr 1, 2025
-                      </div>
-                    </div>
-                    <span className="text-xs mt-1">Apr</span>
-                  </div>
-                  <div className="relative flex flex-col items-center group">
-                    <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
-                      <div
-                        className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
-                        style={
-                          {
-                            animationDelay: "1100ms",
-                            "--bar-height": "90%",
-                          } as React.CSSProperties
-                        }
-                      ></div>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                        Paid on May 1, 2025
-                      </div>
-                    </div>
-                    <span className="text-xs mt-1">May</span>
-                  </div>
+                  ))}
+
+                  {/* If no payment history, show placeholder bars */}
+                  {(!dashboardData?.paymentHistory || dashboardData.paymentHistory.length === 0) && (
+                    <>
+                      {["Dec", "Jan", "Feb", "Mar", "Apr", "May"].map((month, index) => (
+                        <div key={month} className="relative flex flex-col items-center group">
+                          <div className="h-[180px] w-8 bg-muted rounded-t-md overflow-hidden">
+                            <div
+                              className="bg-green-500 w-full absolute bottom-0 h-0 animate-grow-up"
+                              style={
+                                {
+                                  animationDelay: `${index * 200}ms`,
+                                  "--bar-height": `${index % 2 === 0 ? "95%" : "100%"}`,
+                                } as React.CSSProperties
+                              }
+                            ></div>
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                              Paid on {month} 1, 2025
+                            </div>
+                          </div>
+                          <span className="text-xs mt-1">{month}</span>
+                        </div>
+                      ))}
+                    </>
+                  )}
                 </div>
                 <div className="mt-4 text-center text-sm text-muted-foreground">
                   <span className="inline-block w-3 h-3 bg-green-500 rounded-full mr-1"></span>
@@ -357,7 +471,7 @@ export default function DashboardPage() {
                   <div className="pt-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Total Issues Reported</span>
-                      <span className="text-lg font-bold">7</span>
+                      <span className="text-lg font-bold">{dashboardData?.openIssues || 0}</span>
                     </div>
                   </div>
                 </div>

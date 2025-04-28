@@ -1,26 +1,25 @@
 import { NextResponse } from "next/server"
-
-// In a real implementation, this would query the database for unique years
-async function fetchEventYears(): Promise<number[]> {
-  // Get current date
-  const currentDate = new Date()
-  const currentYear = currentDate.getFullYear()
-
-  // Return current year, previous year, and 2025 for demonstration
-  // Use a Set to ensure unique values
-  const uniqueYears = new Set([currentYear - 1, currentYear, 2025])
-
-  // Convert Set back to array
-  return Array.from(uniqueYears)
-}
+import { supabase } from "@/lib/supabase"
 
 export async function GET() {
   try {
-    // In a real app, this would query the database for unique years with events
-    const years = await fetchEventYears()
+    // Query the database to get unique years from events
+    const { data, error } = await supabase.from("events").select("date").order("date", { ascending: false })
 
-    // Sort years in descending order (newest first)
-    years.sort((a, b) => b - a)
+    if (error) {
+      throw error
+    }
+
+    // Extract years from dates and remove duplicates
+    const years = data
+      .map((event) => new Date(event.date).getFullYear())
+      .filter((year, index, self) => self.indexOf(year) === index)
+
+    // If no years found, return current year
+    if (years.length === 0) {
+      const currentYear = new Date().getFullYear()
+      return NextResponse.json([currentYear])
+    }
 
     return NextResponse.json(years)
   } catch (error) {

@@ -56,6 +56,8 @@ export default function IssuesPage() {
         const response = await fetch(`/api/issues?status=${activeTab}`)
 
         if (!response.ok) {
+          const errorText = await response.text()
+          console.error("API error response:", errorText)
           throw new Error(`API returned status: ${response.status}`)
         }
 
