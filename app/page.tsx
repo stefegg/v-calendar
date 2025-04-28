@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { FeatureCard } from "@/components/feature-card"
 
 export default function Home() {
   return (
@@ -43,52 +43,35 @@ export default function Home() {
               <Link href="/issues">Report an Issue</Link>
             </Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="dark:border-white">
-              <CardHeader>
-                <CardTitle>Event Calendar</CardTitle>
-                <CardDescription>Track all building and unit events in one place</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>
-                  View and manage events for your units and buildings. See maintenance schedules, rent due dates, and
-                  community meetings all in one calendar view.
-                </p>
-                <Button className="mt-4 dark:border-white" variant="outline" asChild>
-                  <Link href="/calendar">Open Calendar</Link>
-                </Button>
-              </CardContent>
-            </Card>
-            <Card className="dark:border-white">
-              <CardHeader>
-                <CardTitle>Dashboard</CardTitle>
-                <CardDescription>Access your personalized property management dashboard</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>
-                  View your upcoming events, track maintenance issues, and get a quick overview of your property status
-                  all in one convenient dashboard.
-                </p>
-                <Button className="mt-4 dark:border-white" variant="outline" asChild>
-                  <Link href="/dashboard">Open Dashboard</Link>
-                </Button>
-              </CardContent>
-            </Card>
-            <Card className="dark:border-white">
-              <CardHeader>
-                <CardTitle>Maintenance Issues</CardTitle>
-                <CardDescription>Report and track maintenance issues in your unit or building</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>
-                  Easily report maintenance issues, track their status, and communicate with property management about
-                  repairs and resolutions.
-                </p>
-                <Button className="mt-4 dark:border-white" variant="outline" asChild>
-                  <Link href="/issues">Report an Issue</Link>
-                </Button>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <FeatureCard
+              title="Event Calendar"
+              description="Track all building and unit events in one place"
+              content="View and manage events for your units and buildings. See maintenance schedules, rent due dates, and community meetings all in one calendar view."
+              linkText="Open Calendar"
+              linkHref="/calendar"
+            />
+            <FeatureCard
+              title="Dashboard"
+              description="Access your personalized property management dashboard"
+              content="View your upcoming events, track maintenance issues, and get a quick overview of your property status all in one convenient dashboard."
+              linkText="Open Dashboard"
+              linkHref="/dashboard"
+            />
+            <FeatureCard
+              title="Maintenance Issues"
+              description="Report and track maintenance issues in your unit or building"
+              content="Easily report maintenance issues, track their status, and communicate with property management about repairs and resolutions."
+              linkText="Report an Issue"
+              linkHref="/issues"
+            />
+            <FeatureCard
+              title="Maintenance Management"
+              description="For property managers"
+              content="Assign work disciplines, select vendors, schedule repairs, and manage the full lifecycle of maintenance issues across all properties."
+              linkText="Manage Maintenance"
+              linkHref="/manager/maintenance"
+            />
           </div>
         </div>
       </div>

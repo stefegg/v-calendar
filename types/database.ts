@@ -164,6 +164,11 @@ export interface Database {
           assigned_to: string | null
           created_at: string
           updated_at: string
+          work_discipline: string | null
+          vendor_id: string | null
+          estimated_cost: number | null
+          scheduled_date: string | null
+          completion_date: string | null
         }
         Insert: {
           id?: string
@@ -179,6 +184,11 @@ export interface Database {
           assigned_to?: string | null
           created_at?: string
           updated_at?: string
+          work_discipline?: string | null
+          vendor_id?: string | null
+          estimated_cost?: number | null
+          scheduled_date?: string | null
+          completion_date?: string | null
         }
         Update: {
           id?: string
@@ -194,6 +204,11 @@ export interface Database {
           assigned_to?: string | null
           created_at?: string
           updated_at?: string
+          work_discipline?: string | null
+          vendor_id?: string | null
+          estimated_cost?: number | null
+          scheduled_date?: string | null
+          completion_date?: string | null
         }
       }
       maintenance_comments: {
@@ -261,6 +276,55 @@ export interface Database {
           description?: string | null
           created_at?: string
           updated_at?: string
+        }
+      }
+      vendors: {
+        Row: {
+          id: string
+          name: string
+          email: string | null
+          phone: string | null
+          address: string | null
+          notes: string | null
+          is_preferred: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          email?: string | null
+          phone?: string | null
+          address?: string | null
+          notes?: string | null
+          is_preferred?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          email?: string | null
+          phone?: string | null
+          address?: string | null
+          notes?: string | null
+          is_preferred?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      vendor_disciplines: {
+        Row: {
+          vendor_id: string
+          discipline: string
+        }
+        Insert: {
+          vendor_id: string
+          discipline: string
+        }
+        Update: {
+          vendor_id?: string
+          discipline?: string
         }
       }
     }

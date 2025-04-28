@@ -5,6 +5,8 @@ import { Lato } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 const lato = Lato({
   weight: ["400", "700", "900"],
@@ -64,6 +66,25 @@ export default function RootLayout({
                   >
                     Buildings
                   </Link>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-primary-foreground/70 bg-white/10 hover:bg-white/20 dark:border-white dark:bg-transparent dark:hover:bg-accent"
+                      >
+                        Manager
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href="/manager/maintenance">Maintenance Management</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/manager/vendors">Vendor Management</Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <ThemeToggle />
                 </div>
               </div>

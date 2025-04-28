@@ -1,6 +1,8 @@
 import { supabase, createServerSupabaseClient } from "@/lib/supabase"
 import type { Database } from "@/types/database"
-import type { Issue, Comment } from "@/types/app-types"
+import type { Comment } from "@/types/app-types"
+import type { MaintenanceIssueWithAssignment, WorkDiscipline, Vendor } from "@/types/maintenance-types"
+import { getVendor } from "./vendors"
 
 export type MaintenanceIssue = Database["public"]["Tables"]["maintenance_issues"]["Row"]
 export type MaintenanceIssueInsert = Database["public"]["Tables"]["maintenance_issues"]["Insert"]
@@ -15,7 +17,8 @@ export async function getMaintenanceIssues(buildingId?: string, status?: string)
       *,
       reported_by:users!maintenance_issues_reported_by_fkey(id, first_name, last_name),
       assigned_to:users!maintenance_issues_assigned_to_fkey(id, first_name, last_name),
-      buildings(id, name)
+      buildings(id, name),
+      vendors(id, name, email, phone, is_preferred)
     `)
 
   if (buildingId) {
@@ -39,7 +42,33 @@ export async function getMaintenanceIssues(buildingId?: string, status?: string)
     throw error
   }
 
-  return data
+  // Transform the data to match the expected format
+  const transformedIssues: MaintenanceIssueWithAssignment[] = await Promise.all(
+    data.map(async (issue) => {
+      // Get vendor disciplines if there's a vendor
+      let assignedVendor: Vendor | undefined = undefined
+      if (issue.vendor_id && issue.vendors) {
+        try {
+          assignedVendor = await getVendor(issue.vendor_id)
+        } catch (e) {
+          console.error(`Error fetching vendor ${issue.vendor_id}:`, e)
+          // Fallback to basic vendor info
+          assignedVendor = {
+            id: issue.vendor_id,
+            name: issue.vendors.name,
+            email: issue.vendors.email,
+            phone: issue.vendors.phone,
+            isPreferred: issue.vendors.is_preferred,
+            disciplines: [],
+          }
+        }
+      }
+
+      return transformIssueForFrontend(issue, assignedVendor)
+    }),
+  )
+
+  return transformedIssues
 }
 
 export async function getMaintenanceIssue(id: string) {
@@ -50,6 +79,7 @@ export async function getMaintenanceIssue(id: string) {
       reported_by:users!maintenance_issues_reported_by_fkey(id, first_name, last_name, email),
       assigned_to:users!maintenance_issues_assigned_to_fkey(id, first_name, last_name, email),
       buildings(id, name),
+      vendors(id, name, email, phone, is_preferred),
       maintenance_comments(
         id,
         text,
@@ -65,7 +95,26 @@ export async function getMaintenanceIssue(id: string) {
     throw error
   }
 
-  return data
+  // Get vendor disciplines if there's a vendor
+  let assignedVendor: Vendor | undefined = undefined
+  if (data.vendor_id && data.vendors) {
+    try {
+      assignedVendor = await getVendor(data.vendor_id)
+    } catch (e) {
+      console.error(`Error fetching vendor ${data.vendor_id}:`, e)
+      // Fallback to basic vendor info
+      assignedVendor = {
+        id: data.vendor_id,
+        name: data.vendors.name,
+        email: data.vendors.email,
+        phone: data.vendors.phone,
+        isPreferred: data.vendors.is_preferred,
+        disciplines: [],
+      }
+    }
+  }
+
+  return transformIssueForFrontend(data, assignedVendor)
 }
 
 // Server-side functions
@@ -89,6 +138,9 @@ export async function updateMaintenanceIssue(id: string, updates: MaintenanceIss
   if (updates.status === "resolved" || updates.status === "closed") {
     updates.resolved_at = updates.resolved_at || new Date().toISOString()
   }
+
+  // Log the updates being sent to the database
+  console.log("Updating maintenance issue with data:", updates)
 
   const { data, error } = await supabaseServer
     .from("maintenance_issues")
@@ -122,7 +174,7 @@ export async function addMaintenanceComment(comment: MaintenanceCommentInsert) {
 }
 
 // Helper function to transform database issue to frontend issue
-export function transformIssueForFrontend(dbIssue: any): Issue {
+export function transformIssueForFrontend(dbIssue: any, assignedVendor?: Vendor): MaintenanceIssueWithAssignment {
   // Transform comments
   const comments: Comment[] = dbIssue.maintenance_comments
     ? dbIssue.maintenance_comments.map((comment: any) => ({
@@ -167,5 +219,10 @@ export function transformIssueForFrontend(dbIssue: any): Issue {
         }
       : undefined,
     comments: comments,
+    workDiscipline: dbIssue.work_discipline as WorkDiscipline | undefined,
+    assignedVendor: assignedVendor,
+    estimatedCost: dbIssue.estimated_cost,
+    scheduledDate: dbIssue.scheduled_date,
+    completionDate: dbIssue.completion_date,
   }
 }
